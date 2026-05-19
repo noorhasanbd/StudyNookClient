@@ -49,7 +49,12 @@ const Navbar = () => {
         
       </div>
       <div className="dropdown dropdown-end flex items-center gap-4">
-        <a className="btn">Button</a>
+        <Link className="btn" href="/login">
+          Login
+        </Link>
+        <Link className="btn" href="/register">
+          Register
+        </Link>
         <div
           tabIndex={0}
           role="button"
