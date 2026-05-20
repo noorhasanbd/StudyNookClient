@@ -24,16 +24,14 @@ const HeroSection = () => {
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-sans mb-6 drop-shadow-md bg-clip-text text-transparent bg-gradient-to-r from-base-100 via-base-200 to-base-100 animate-[fadeInUp_0.8s_ease-out]">
-          Your Perfect Study Space, <br />
+          Find Your Perfect Study Room <br />
           <span className="text-primary-content bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Booked Instantly.
           </span>
         </h1>
 
         <p className="text-lg sm:text-xl text-neutral-content/80 max-w-2xl mx-auto mb-10 font-normal leading-relaxed animate-[fadeInUp_1s_ease-out_forwards]">
-          Escape the noise. Find, schedule, and secure premium quiet rooms,
-          group collaboration spaces, and study desks tailored to your focus
-          hours.
+          Browse and book quiet, private study rooms in your library. List your own room and earn.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-[fadeInUp_1.2s_ease-out_forwards]">

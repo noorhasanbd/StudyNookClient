@@ -2,8 +2,34 @@
 
 import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
 const LoginForm = () => {
+  const handleGoogleSignin = async () => {
+        console.log("Initiating Google Sign-In...");
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+    };
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const user = Object.fromEntries(formData.entries());
+
+    const { data, error } = await authClient.signIn.email({
+      email: user.email,
+      password: user.password,
+    });
+    console.log({ data, error });
+    if (data) {
+      redirect("/");
+    }
+    if (error) {
+      console.error("Login failed:", error);
+    }
+  };
   return (
     <div>
       <div>
@@ -18,7 +44,7 @@ const LoginForm = () => {
               </p>
             </div>
 
-            <div className="space-y-5">
+            <form className="space-y-5" onSubmit={onSubmit}>
               <div className="form-control w-full">
                 <label className="label font-medium text-sm text-base-content/80 pb-1.5">
                   Email Address
@@ -27,6 +53,8 @@ const LoginForm = () => {
                   <FiMail className="text-base-content/40 w-4 h-4" />
                   <input
                     type="email"
+                    name="email"
+                    required
                     className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full"
                     placeholder="you@library.edu"
                   />
@@ -41,6 +69,8 @@ const LoginForm = () => {
                   <FiLock className="text-base-content/40 w-4 h-4" />
                   <input
                     type="password"
+                    name="password"
+                    required
                     className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full"
                     placeholder="••••••••"
                   />
@@ -51,13 +81,13 @@ const LoginForm = () => {
                 Sign In
                 <FiArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </button>
-            </div>
+            </form>
 
             <div className="divider my-6 text-xs text-base-content/40 uppercase tracking-wider font-medium">
               or
             </div>
 
-            <button className="btn btn-outline border-base-300 hover:bg-base-200 hover:text-base-content w-full normal-case text-sm font-medium transition-all">
+            <button className="btn btn-outline border-base-300 hover:bg-base-200 hover:text-base-content w-full normal-case text-sm font-medium transition-all" onClick={handleGoogleSignin}>
               <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24">
                 <path
                   fill="#EA4335"
