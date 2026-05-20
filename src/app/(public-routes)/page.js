@@ -1,3 +1,4 @@
+import CardSection from "@/components/homepage/CardSection";
 import HeroSection from "@/components/homepage/HeroSection";
 import Navbar from "@/components/shared/Navbar";
 import Image from "next/image";
@@ -6,6 +7,7 @@ export default function Home() {
   return (
     <div className="">
       <HeroSection />
+      <CardSection />
     </div>
   );
 }

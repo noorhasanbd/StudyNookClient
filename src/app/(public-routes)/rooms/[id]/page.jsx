@@ -1,0 +1,199 @@
+import React from "react";
+import Link from "next/link";
+import {
+  FiUsers,
+  FiLayers,
+  FiDollarSign,
+  FiCheckCircle,
+  FiClock,
+  FiChevronLeft,
+  FiCalendar,
+  FiInfo,
+} from "react-icons/fi";
+
+const getRoomDetails = async (id) => {
+  const res = await fetch(`http://localhost:5000/rooms/${id}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch room records");
+  return res.json();
+};
+
+const RoomDetailsPage = async ({ params }) => {
+  const { id } =await params;
+  let room = null;
+
+  try {
+    room = await getRoomDetails(id);
+  } catch (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-base-100 px-4">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-error">Unable to Load Room</h2>
+          <p className="text-base-content/60">
+            The room resource could not be found or the server is offline.
+          </p>
+          <Link
+            href="/all-rooms"
+            className="btn btn-neutral btn-sm normal-case"
+          >
+            Back to All Rooms
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const {
+    roomName = "Premium Study Space",
+    description = "No description available for this space.",
+    imageUrl = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200",
+    floor = "N/A",
+    capacity = 0,
+    pricePerHour = 0,
+    amenities = [],
+  } = room || {};
+
+  return (
+    <div className="min-h-screen bg-base-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6">
+          <Link
+            href="/all-rooms"
+            className="inline-flex items-center gap-2 text-sm font-medium text-base-content/60 hover:text-primary transition-colors group"
+          >
+            <FiChevronLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" />
+            Back to Room Catalogues
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-base-200 shadow-sm bg-base-300">
+              <img
+                src={imageUrl}
+                alt={roomName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="border-b border-base-200 pb-6">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-base-content tracking-tight">
+                {roomName}
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-base-content/60 font-medium">
+                <div className="flex items-center gap-1.5 bg-base-200/60 px-2.5 py-1 rounded-md border border-base-200">
+                  <FiLayers className="w-4 h-4 text-primary" />
+                  <span>{floor}</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-base-200/60 px-2.5 py-1 rounded-md border border-base-200">
+                  <FiUsers className="w-4 h-4 text-primary" />
+                  <span>{capacity} Available Seats</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xl font-bold text-base-content tracking-tight">
+                About This Workspace
+              </h3>
+              <p className="text-base-content/75 text-base leading-relaxed whitespace-pre-line">
+                {description}
+              </p>
+            </div>
+
+            <div className="space-y-4 pt-4">
+              <h3 className="text-xl font-bold text-base-content tracking-tight">
+                Included Amenities
+              </h3>
+
+              {amenities.length === 0 ? (
+                <p className="text-sm text-base-content/40 italic">
+                  No custom utility tokens mapped to this space layout.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {amenities.map((amenity, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 rounded-xl border border-base-200 bg-base-200/20 text-sm text-base-content/80 font-medium"
+                    >
+                      <FiCheckCircle className="w-4 h-4 text-success flex-shrink-0" />
+                      <span>{amenity}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 rounded-xl border border-info/20 bg-info/5 flex gap-3 text-sm text-info-content/90 leading-relaxed">
+              <FiInfo className="w-5 h-5 text-info flex-shrink-0 mt-0.5" />
+              <div>
+                <strong className="font-semibold block mb-0.5">
+                  Booking Etiquette Notice:
+                </strong>
+                Please maintain ambient quiet zone noise thresholds inside this
+                pod resource. Ensure layout configurations are returned to
+                native templates post-checkout.
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:sticky lg:top-8 space-y-6">
+            <div className="card bg-base-100 border border-base-200 shadow-xl rounded-2xl overflow-hidden">
+              <div className="card-body p-6 sm:p-8 space-y-6">
+                <div className="flex items-baseline justify-between border-b border-base-200 pb-4">
+                  <span className="text-sm font-semibold text-base-content/60">
+                    Resource Rate
+                  </span>
+                  <div className="flex items-baseline text-base-content">
+                    <FiDollarSign className="w-4 h-4 text-success self-center font-bold" />
+                    <span className="text-3xl font-extrabold tracking-tight">
+                      {Number(pricePerHour).toFixed(2)}
+                    </span>
+                    <span className="text-sm font-medium text-base-content/50 ml-1">
+                      / hour
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-3.5 text-sm font-medium text-base-content/80">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-base-content/60">
+                      <FiClock className="w-4 h-4" /> Min Duration
+                    </span>
+                    <span>1.0 Hour</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-base-content/60">
+                      <FiUsers className="w-4 h-4" /> Allocation Rule
+                    </span>
+                    <span>Entire Room</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-base-content/60">
+                      <FiCalendar className="w-4 h-4" /> Instant Approval
+                    </span>
+                    <span className="text-success font-semibold">Active</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button className="btn btn-neutral btn-block normal-case font-bold text-base shadow-md hover:btn-primary transition-colors">
+                    Reserve This Space
+                  </button>
+                  <p className="text-center text-xs text-base-content/40 mt-3 font-medium">
+                    You won't be billed quite yet in this layout loop step.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RoomDetailsPage;

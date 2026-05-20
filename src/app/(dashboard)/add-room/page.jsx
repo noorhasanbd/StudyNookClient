@@ -19,7 +19,7 @@ const AddRoomPage = () => {
     "Air Conditioning",
   ];
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     
     const formData = new FormData(e.currentTarget);
@@ -37,6 +37,13 @@ const AddRoomPage = () => {
     };
 
     console.log("Captured Room Data:", formattedData);
+
+    fetch("http://localhost:5000/rooms", {
+      method: "POST",
+      headers:{ "Content-Type": "application/json" },
+      body: JSON.stringify(formattedData),
+    })
+
   };
 
   return (
