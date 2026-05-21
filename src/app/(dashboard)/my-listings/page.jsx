@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 import {
   FiGrid,
   FiMapPin,
@@ -15,8 +16,7 @@ import {
 } from "react-icons/fi";
 
 const MyListingsPage = () => {
-  const { data: session, isPending: isSessionPending } =
-    authClient.useSession();
+  const { data: session, isPending: isSessionPending } = authClient.useSession();
   const [listings, setListings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -45,6 +45,63 @@ const MyListingsPage = () => {
     fetchMyListings();
   }, [session, isSessionPending]);
 
+  const executeDelete = async (roomId, roomName) => {
+    try {
+      const response = await fetch(`http://localhost:5000/rooms/${roomId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: session?.user?.id }),
+      });
+
+      if (response.ok) {
+        toast.success(`"${roomName}" successfully removed.`);
+        setListings((prevListings) =>
+          prevListings.filter((room) => room._id !== roomId)
+        );
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Failed to remove the workspace resource.");
+      }
+    } catch (error) {
+      console.error("Delete execution error:", error);
+      toast.error("An error occurred during deletion.");
+    }
+  };
+
+  const handleDelete = (roomId, roomName) => {
+    const ConfirmationToast = ({ closeToast }) => (
+      <div className="p-1">
+        <p className="text-sm font-medium text-base-content mb-3">
+          Permanently remove <strong>{roomName}</strong>?
+        </p>
+        <div className="flex justify-end gap-2">
+          <button
+            className="btn btn-xs btn-ghost normal-case"
+            onClick={closeToast}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-xs btn-error normal-case"
+            onClick={async () => {
+              closeToast();
+              await executeDelete(roomId, roomName);
+            }}
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    );
+
+    toast.info(<ConfirmationToast />, {
+      position: "top-center",
+      autoClose: false,
+      closeOnClick: false,
+      draggable: false,
+    });
+  };
+
   if (isSessionPending || isLoading) {
     return (
       <div className="flex justify-center items-center py-24 w-full">
@@ -68,7 +125,7 @@ const MyListingsPage = () => {
           href="/add-room"
           className="btn btn-neutral normal-case font-medium shadow-sm"
         >
-          <FiPlus className="w-4 h-4" /> Add New Space
+          <FiPlus className="w-4 h-4" /> Add New Room
         </Link>
       </div>
 
@@ -195,9 +252,7 @@ const MyListingsPage = () => {
                     <FiEdit3 className="w-3.5 h-3.5" /> Edit
                   </Link>
                   <button
-                    onClick={() =>
-                      console.log("Delete triggered for:", room._id)
-                    }
+                    onClick={() => handleDelete(room._id, room.roomName)}
                     className="btn btn-ghost btn-xs h-9 text-error hover:bg-error/10 normal-case flex items-center justify-center gap-1 rounded-lg px-1.5"
                   >
                     <FiTrash2 className="w-3.5 h-3.5" /> Remove
