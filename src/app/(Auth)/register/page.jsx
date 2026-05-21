@@ -7,6 +7,11 @@ import { redirect } from "next/navigation";
 import { Bounce, toast } from "react-toastify";
 
 const RegistrationPage = () => {
+  const { data: session, isPending } = authClient.useSession();
+  
+    if(session){
+      redirect('/')
+    }
     const handleGoogleSignin = async () => {
       console.log("Initiating Google Sign-In...");
     await authClient.signIn.social({

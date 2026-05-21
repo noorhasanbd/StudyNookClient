@@ -4,15 +4,21 @@ import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
+import { Bounce, toast } from "react-toastify";
 
 const LoginForm = () => {
+  const { data: session, isPending } = authClient.useSession();
+
+  if(session){
+    redirect('/')
+  }
   const handleGoogleSignin = async () => {
-        console.log("Initiating Google Sign-In...");
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/",
-      });
-    };
+    console.log("Initiating Google Sign-In...");
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+  };
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -24,10 +30,22 @@ const LoginForm = () => {
     });
     console.log({ data, error });
     if (data) {
+      
+      toast.success("Login successful!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
       redirect("/");
     }
     if (error) {
-      console.error("Login failed:", error);
+      console.error("Login failed:", error.message);
     }
   };
   return (
@@ -87,7 +105,10 @@ const LoginForm = () => {
               or
             </div>
 
-            <button className="btn btn-outline border-base-300 hover:bg-base-200 hover:text-base-content w-full normal-case text-sm font-medium transition-all" onClick={handleGoogleSignin}>
+            <button
+              className="btn btn-outline border-base-300 hover:bg-base-200 hover:text-base-content w-full normal-case text-sm font-medium transition-all"
+              onClick={handleGoogleSignin}
+            >
               <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24">
                 <path
                   fill="#EA4335"
