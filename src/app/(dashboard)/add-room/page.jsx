@@ -44,7 +44,7 @@ const AddRoomPage = () => {
     console.log("Captured Room Data with real User ID:", formattedData);
 
     try {
-      const response = await fetch("http://localhost:5000/rooms", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formattedData),

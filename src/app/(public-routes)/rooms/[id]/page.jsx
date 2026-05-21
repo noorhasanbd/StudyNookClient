@@ -4,7 +4,7 @@ import RoomDetailsClient from "./RoomDetailsClient";
 const RoomDetailsPage = async ({ params }) => {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:5000/rooms/${id}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${id}`, {
     cache: "no-store",
   });
   const roomData = await res.json();

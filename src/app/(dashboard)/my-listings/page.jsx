@@ -26,7 +26,7 @@ const MyListingsPage = () => {
     const fetchMyListings = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/rooms?createdBy=${session.user.id}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/rooms?createdBy=${session.user.id}`,
           {
             cache: "no-store",
           },
@@ -47,7 +47,7 @@ const MyListingsPage = () => {
 
   const executeDelete = async (roomId, roomName) => {
     try {
-      const response = await fetch(`http://localhost:5000/rooms/${roomId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${roomId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: session?.user?.id }),

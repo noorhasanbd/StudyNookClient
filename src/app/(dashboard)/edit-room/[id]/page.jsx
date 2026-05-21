@@ -37,7 +37,7 @@ const EditRoomPage = ({ params }) => {
   useEffect(() => {
     const fetchRoomDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/rooms/${roomId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${roomId}`, {
           cache: "no-store",
         });
         if (res.ok) {
@@ -84,7 +84,7 @@ const EditRoomPage = ({ params }) => {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/rooms/${roomId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${roomId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formattedPayload),

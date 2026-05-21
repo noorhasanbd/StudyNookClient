@@ -31,7 +31,7 @@ const MyBookings = () => {
     if (!session?.user?.id) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/bookings/user/${session.user.id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings/user/${session.user.id}`,
         {
           cache: "no-store",
         },
@@ -66,7 +66,7 @@ const MyBookings = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/bookings/${activeEditingBooking._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings/${activeEditingBooking._id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -110,7 +110,7 @@ const MyBookings = () => {
               toast.dismiss();
               try {
                 const response = await fetch(
-                  `http://localhost:5000/bookings/${id}`,
+                  `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings/${id}`,
                   {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
