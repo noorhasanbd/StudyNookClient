@@ -4,7 +4,7 @@ const AboutPage = () => {
     return (
         <div className="bg-slate-50 min-h-screen text-slate-800 selection:bg-indigo-500 selection:text-white">
             
-            {/* Hero Section */}
+    
             <header className="relative bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 py-24 px-6 text-center text-white overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/10 via-transparent to-transparent pointer-events-none"></div>
                 <div className="max-w-4xl mx-auto relative z-10">
