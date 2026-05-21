@@ -1,5 +1,7 @@
-'use client'
+"use client";
 import React from "react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 import {
   FiGrid,
   FiFileText,
@@ -7,9 +9,12 @@ import {
   FiLayers,
   FiUsers,
   FiDollarSign,
+  FiMapPin,
 } from "react-icons/fi";
 
 const AddRoomPage = () => {
+  const { data: session } = authClient.useSession();
+
   const amenitiesOptions = [
     "Whiteboard",
     "Projector",
@@ -21,45 +26,60 @@ const AddRoomPage = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    
-    const formData = new FormData(e.currentTarget);
+
+    const formElement = e.currentTarget;
+    const formData = new FormData(formElement);
     const roomData = Object.fromEntries(formData.entries());
-    
-    
+
     const selectedAmenities = Array.from(formData.getAll("amenities"));
     roomData.amenities = selectedAmenities;
 
- 
     const formattedData = {
       ...roomData,
       capacity: Number(roomData.capacity),
       pricePerHour: Number(roomData.pricePerHour),
+      createdBy: session?.user?.id,
     };
 
-    console.log("Captured Room Data:", formattedData);
+    console.log("Captured Room Data with real User ID:", formattedData);
 
-    fetch("http://localhost:5000/rooms", {
-      method: "POST",
-      headers:{ "Content-Type": "application/json" },
-      body: JSON.stringify(formattedData),
-    })
+    try {
+      const response = await fetch("http://localhost:5000/rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formattedData),
+      });
 
+      if (response.ok) {
+        toast.success(
+          `${formattedData.roomName || "Room Name"} Successfully updated`,
+        );
+        formElement.reset();
+      } else {
+        toast.error("Failed to add room resource. Please try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred during submission.");
+    }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-base-100 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-2xl rounded-2xl border border-base-200 bg-base-100 p-8 shadow-xl sm:p-12">
+    <div className="flex items-center justify-center bg-base-200 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full max-w-2xl rounded-2xl border border-base-300 bg-base-100 p-8 shadow-sm sm:p-12">
         <div className="flex flex-col gap-2 text-center mb-10">
           <h1 className="text-3xl font-bold tracking-tight text-base-content font-sans">
             Add New Study Room
           </h1>
           <p className="text-sm text-base-content/60">
-            Enter the room details to list it on the booking platform
+            Logged in as:{" "}
+            <span className="font-semibold text-neutral">
+              {session?.user?.email}
+            </span>
           </p>
         </div>
 
         <form className="space-y-6" onSubmit={onSubmit}>
-         
           <div className="form-control w-full">
             <label className="label font-medium text-sm text-base-content/80 pb-1.5">
               Room Name
@@ -68,7 +88,7 @@ const AddRoomPage = () => {
               <FiGrid className="text-base-content/40 w-4 h-4" />
               <input
                 type="text"
-                name="roomName" 
+                name="roomName"
                 required
                 className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full"
                 placeholder="e.g., Turing Seminar Room"
@@ -76,7 +96,6 @@ const AddRoomPage = () => {
             </div>
           </div>
 
-     
           <div className="form-control w-full">
             <label className="label font-medium text-sm text-base-content/80 pb-1.5">
               Description
@@ -84,7 +103,7 @@ const AddRoomPage = () => {
             <div className="flex gap-3 px-3 py-2 border border-base-300 rounded-lg focus-within:border-neutral transition-colors w-full bg-base-100">
               <FiFileText className="text-base-content/40 w-4 h-4 mt-1 flex-shrink-0" />
               <textarea
-                name="description" 
+                name="description"
                 required
                 rows={4}
                 className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full resize-none focus:outline-none"
@@ -93,7 +112,6 @@ const AddRoomPage = () => {
             </div>
           </div>
 
-    
           <div className="form-control w-full">
             <label className="label font-medium text-sm text-base-content/80 pb-1.5">
               Image URL
@@ -102,7 +120,7 @@ const AddRoomPage = () => {
               <FiImage className="text-base-content/40 w-4 h-4" />
               <input
                 type="url"
-                name="imageUrl" 
+                name="imageUrl"
                 required
                 className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full"
                 placeholder="https://images.unsplash.com/your-room-image.jpg"
@@ -110,9 +128,23 @@ const AddRoomPage = () => {
             </div>
           </div>
 
-   
+          <div className="form-control w-full">
+            <label className="label font-medium text-sm text-base-content/80 pb-1.5">
+              Full Physical Address
+            </label>
+            <div className="input input-bordered flex items-center gap-3 focus-within:border-neutral focus-within:outline-none transition-colors w-full">
+              <FiMapPin className="text-base-content/40 w-4 h-4" />
+              <input
+                type="text"
+                name="location"
+                required
+                className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full"
+                placeholder="e.g., 3rd floor, Imperial Amin Square, Dhanmondi, 1209"
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
             <div className="form-control w-full">
               <label className="label font-medium text-sm text-base-content/80 pb-1.5">
                 Floor
@@ -121,7 +153,7 @@ const AddRoomPage = () => {
                 <FiLayers className="text-base-content/40 w-4 h-4" />
                 <input
                   type="text"
-                  name="floor" 
+                  name="floor"
                   required
                   className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full"
                   placeholder="e.g., 3rd Floor"
@@ -137,7 +169,7 @@ const AddRoomPage = () => {
                 <FiUsers className="text-base-content/40 w-4 h-4" />
                 <input
                   type="number"
-                  name="capacity" 
+                  name="capacity"
                   min="1"
                   required
                   className="grow text-sm bg-transparent placeholder:text-base-content/30 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -154,7 +186,7 @@ const AddRoomPage = () => {
                 <FiDollarSign className="text-base-content/40 w-4 h-4" />
                 <input
                   type="number"
-                  name="pricePerHour" 
+                  name="pricePerHour"
                   min="0"
                   step="0.01"
                   required
@@ -177,7 +209,7 @@ const AddRoomPage = () => {
                 >
                   <input
                     type="checkbox"
-                    name="amenities" 
+                    name="amenities"
                     className="checkbox checkbox-neutral checkbox-sm rounded"
                     value={amenity}
                   />

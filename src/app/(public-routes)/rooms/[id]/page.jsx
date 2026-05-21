@@ -9,50 +9,34 @@ import {
   FiChevronLeft,
   FiCalendar,
   FiInfo,
+  FiMapPin,
 } from "react-icons/fi";
 
-const getRoomDetails = async (id) => {
+const RoomDetailsPage = async ({ params }) => {
+  const { id } = await params;
+
+  console.log("Room ID from URL:", id);
   const res = await fetch(`http://localhost:5000/rooms/${id}`, {
     cache: "no-store",
   });
-  if (!res.ok) throw new Error("Failed to fetch room records");
-  return res.json();
-};
+  const roomData = await res.json();
 
-const RoomDetailsPage = async ({ params }) => {
-  const { id } =await params;
-  let room = null;
+  console.log("Fetched Room Data:", roomData);
 
-  try {
-    room = await getRoomDetails(id);
-  } catch (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-base-100 px-4">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-error">Unable to Load Room</h2>
-          <p className="text-base-content/60">
-            The room resource could not be found or the server is offline.
-          </p>
-          <Link
-            href="/all-rooms"
-            className="btn btn-neutral btn-sm normal-case"
-          >
-            Back to All Rooms
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const {
-    roomName = "Premium Study Space",
-    description = "No description available for this space.",
-    imageUrl = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200",
-    floor = "N/A",
-    capacity = 0,
-    pricePerHour = 0,
-    amenities = [],
-  } = room || {};
+  const room = {
+    roomName: roomData?.roomName || "Premium Study Suite",
+    description:
+      roomData?.description ||
+      "No description available for this workspace resource.",
+    imageUrl:
+      roomData?.imageUrl ||
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200",
+    floor: roomData?.floor || "Main Floor",
+    location: roomData?.location || "Location data unavailable",
+    capacity: roomData?.capacity || 0,
+    pricePerHour: Number(roomData?.pricePerHour) || 0.0,
+    amenities: roomData?.amenities || [],
+  };
 
   return (
     <div className="min-h-screen bg-base-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -63,7 +47,7 @@ const RoomDetailsPage = async ({ params }) => {
             className="inline-flex items-center gap-2 text-sm font-medium text-base-content/60 hover:text-primary transition-colors group"
           >
             <FiChevronLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" />
-            Back to Room Catalogues
+            Back to Room Catalog
           </Link>
         </div>
 
@@ -71,25 +55,29 @@ const RoomDetailsPage = async ({ params }) => {
           <div className="lg:col-span-2 space-y-8">
             <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-base-200 shadow-sm bg-base-300">
               <img
-                src={imageUrl}
-                alt={roomName}
+                src={room.imageUrl}
+                alt={room.roomName}
                 className="w-full h-full object-cover"
               />
             </div>
 
             <div className="border-b border-base-200 pb-6">
               <h1 className="text-3xl sm:text-4xl font-extrabold text-base-content tracking-tight">
-                {roomName}
+                {room.roomName}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-base-content/60 font-medium">
-                <div className="flex items-center gap-1.5 bg-base-200/60 px-2.5 py-1 rounded-md border border-base-200">
+              <div className="flex flex-wrap items-center gap-3 mt-4 text-xs font-semibold uppercase tracking-wide">
+                <div className="flex items-center gap-1.5 bg-base-200/60 px-3 py-1.5 rounded-lg border border-base-200 text-base-content/70">
                   <FiLayers className="w-4 h-4 text-primary" />
-                  <span>{floor}</span>
+                  <span>{room.floor}</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-base-200/60 px-2.5 py-1 rounded-md border border-base-200">
+                <div className="flex items-center gap-1.5 bg-base-200/60 px-3 py-1.5 rounded-lg border border-base-200 text-base-content/70">
                   <FiUsers className="w-4 h-4 text-primary" />
-                  <span>{capacity} Available Seats</span>
+                  <span>{room.capacity} Available Seats</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-base-200/60 px-3 py-1.5 rounded-lg border border-base-200 text-base-content/70 normal-case">
+                  <FiMapPin className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>{room.location}</span>
                 </div>
               </div>
             </div>
@@ -99,7 +87,7 @@ const RoomDetailsPage = async ({ params }) => {
                 About This Workspace
               </h3>
               <p className="text-base-content/75 text-base leading-relaxed whitespace-pre-line">
-                {description}
+                {room.description}
               </p>
             </div>
 
@@ -108,23 +96,17 @@ const RoomDetailsPage = async ({ params }) => {
                 Included Amenities
               </h3>
 
-              {amenities.length === 0 ? (
-                <p className="text-sm text-base-content/40 italic">
-                  No custom utility tokens mapped to this space layout.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {amenities.map((amenity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 rounded-xl border border-base-200 bg-base-200/20 text-sm text-base-content/80 font-medium"
-                    >
-                      <FiCheckCircle className="w-4 h-4 text-success flex-shrink-0" />
-                      <span>{amenity}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {room.amenities.map((amenity, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-base-200 bg-base-200/20 text-sm text-base-content/80 font-medium"
+                  >
+                    <FiCheckCircle className="w-4 h-4 text-success flex-shrink-0" />
+                    <span>{amenity}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="p-4 rounded-xl border border-info/20 bg-info/5 flex gap-3 text-sm text-info-content/90 leading-relaxed">
@@ -133,14 +115,14 @@ const RoomDetailsPage = async ({ params }) => {
                 <strong className="font-semibold block mb-0.5">
                   Booking Etiquette Notice:
                 </strong>
-                Please maintain ambient quiet zone noise thresholds inside this
+                Please maintain appropriate noise thresholds when inside this
                 pod resource. Ensure layout configurations are returned to
                 native templates post-checkout.
               </div>
             </div>
           </div>
 
-          <div className="lg:sticky lg:top-8 space-y-6">
+          <div className="lg:sticky lg:top-8">
             <div className="card bg-base-100 border border-base-200 shadow-xl rounded-2xl overflow-hidden">
               <div className="card-body p-6 sm:p-8 space-y-6">
                 <div className="flex items-baseline justify-between border-b border-base-200 pb-4">
@@ -150,7 +132,7 @@ const RoomDetailsPage = async ({ params }) => {
                   <div className="flex items-baseline text-base-content">
                     <FiDollarSign className="w-4 h-4 text-success self-center font-bold" />
                     <span className="text-3xl font-extrabold tracking-tight">
-                      {Number(pricePerHour).toFixed(2)}
+                      {room.pricePerHour.toFixed(2)}
                     </span>
                     <span className="text-sm font-medium text-base-content/50 ml-1">
                       / hour
@@ -184,7 +166,7 @@ const RoomDetailsPage = async ({ params }) => {
                     Reserve This Space
                   </button>
                   <p className="text-center text-xs text-base-content/40 mt-3 font-medium">
-                    You won't be billed quite yet in this layout loop step.
+                    Tax and usage allocations are calculated at next screen.
                   </p>
                 </div>
               </div>

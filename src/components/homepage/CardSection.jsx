@@ -3,7 +3,7 @@ import RoomCard from "../shared/RoomCard";
 
 const CardSection = async () => {
  
-  const res = await fetch("http://localhost:5000/rooms", {
+  const res = await fetch("http://localhost:5000/latest-rooms", {
     cache: "no-store", 
   });
   const rooms = await res.json();

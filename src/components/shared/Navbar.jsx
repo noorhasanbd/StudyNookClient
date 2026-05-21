@@ -10,7 +10,7 @@ import React from "react";
 const Navbar = () => {
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "Rooms", href: "/all-rooms" },
+    { name: "Rooms", href: "/rooms" },
     { name: "About", href: "/about" },
   ];
 
