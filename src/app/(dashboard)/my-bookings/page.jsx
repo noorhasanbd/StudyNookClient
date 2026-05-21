@@ -16,7 +16,8 @@ import {
 } from "react-icons/fi";
 
 const MyBookings = () => {
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeEditingBooking, setActiveEditingBooking] = useState(null);
@@ -29,9 +30,12 @@ const MyBookings = () => {
   const fetchUserBookings = async () => {
     if (!session?.user?.id) return;
     try {
-      const res = await fetch(`http://localhost:5000/bookings/user/${session.user.id}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `http://localhost:5000/bookings/user/${session.user.id}`,
+        {
+          cache: "no-store",
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         setBookings(data);
@@ -61,19 +65,24 @@ const MyBookings = () => {
     setIsSubmittingUpdate(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/bookings/${activeEditingBooking._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: session?.user?.id,
-          date: editDate,
-          startTime: editStart,
-          endTime: editEnd,
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:5000/bookings/${activeEditingBooking._id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: session?.user?.id,
+            date: editDate,
+            startTime: editStart,
+            endTime: editEnd,
+          }),
+        },
+      );
 
       if (response.ok) {
-        toast.success("Reservation schedule adjustments authorized successfully.");
+        toast.success(
+          "Reservation schedule adjustments authorized successfully.",
+        );
         setActiveEditingBooking(null);
         fetchUserBookings();
       } else {
@@ -88,28 +97,55 @@ const MyBookings = () => {
     }
   };
 
-  const handleCancelBooking = async (id, roomName) => {
-    const confirmCancellation = window.confirm(`Are you sure you want to cancel your reservation for "${roomName}"?`);
-    if (!confirmCancellation) return;
+  const handleCancelBooking = (id, roomName) => {
+    toast.warn(
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-medium">
+          Are you sure you want to cancel your reservation for "{roomName}"?
+        </p>
+        <div className="flex justify-end gap-2">
+          <button
+            className="px-2 py-1 text-xs font-bold text-white bg-error rounded hover:bg-error-focus transition-colors"
+            onClick={async () => {
+              toast.dismiss();
+              try {
+                const response = await fetch(
+                  `http://localhost:5000/bookings/${id}`,
+                  {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: session?.user?.id }),
+                  },
+                );
 
-    try {
-      const response = await fetch(`http://localhost:5000/bookings/${id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: session?.user?.id }),
-      });
-
-      if (response.ok) {
-        toast.success("Reservation safely removed from scheduler matrices.");
-        setBookings((prev) => prev.filter((item) => item._id !== id));
-      } else {
-        const err = await response.json();
-        toast.error(err.message || "Failed to drop allocation node.");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Network communication failure executing cancellation.");
-    }
+                if (response.ok) {
+                  toast.success(
+                    "Reservation safely removed from scheduler matrices.",
+                  );
+                  setBookings((prev) => prev.filter((item) => item._id !== id));
+                } else {
+                  const err = await response.json();
+                  toast.error(err.message || "Failed to drop allocation node.");
+                }
+              } catch (error) {
+                console.error(error);
+                toast.error(
+                  "Network communication failure executing cancellation.",
+                );
+              }
+            }}
+          >
+            Yes
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      },
+    );
   };
 
   if (isSessionPending || isLoading) {
@@ -140,7 +176,8 @@ const MyBookings = () => {
             No active schedules logged
           </h3>
           <p className="text-sm text-base-content/50 max-w-sm mt-1">
-            You don't have any workspace leases processing right now. Browse our catalogs to book a pod.
+            You don't have any workspace leases processing right now. Browse our
+            catalogs to book a pod.
           </p>
         </div>
       ) : (
@@ -161,7 +198,10 @@ const MyBookings = () => {
                     </span>
                   </div>
                   <p className="text-xs font-semibold text-base-content/40 uppercase tracking-widest flex items-center gap-1">
-                    ID: <span className="font-mono text-base-content/70">{booking._id.slice(-8)}</span>
+                    ID:{" "}
+                    <span className="font-mono text-base-content/70">
+                      {booking._id.slice(-8)}
+                    </span>
                   </p>
                 </div>
 
@@ -172,7 +212,9 @@ const MyBookings = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <FiClock className="w-4 h-4 text-neutral/50" />
-                    <span>{booking.startTime} - {booking.endTime}</span>
+                    <span>
+                      {booking.startTime} - {booking.endTime}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between border-t border-base-300/60 pt-2 mt-1">
                     <div className="flex items-center gap-2">
@@ -194,7 +236,9 @@ const MyBookings = () => {
                     <FiEdit3 className="w-3.5 h-3.5" /> Reschedule
                   </button>
                   <button
-                    onClick={() => handleCancelBooking(booking._id, booking.roomName)}
+                    onClick={() =>
+                      handleCancelBooking(booking._id, booking.roomName)
+                    }
                     className="btn btn-ghost btn-sm text-error hover:bg-error/10 normal-case rounded-lg flex items-center justify-center gap-1.5 h-9"
                   >
                     <FiTrash2 className="w-3.5 h-3.5" /> Cancel
@@ -207,7 +251,10 @@ const MyBookings = () => {
       )}
 
       {activeEditingBooking && (
-        <dialog open className="modal modal-bottom sm:modal-middle bg-black/50 backdrop-blur-xs z-50">
+        <dialog
+          open
+          className="modal modal-bottom sm:modal-middle bg-black/50 backdrop-blur-xs z-50"
+        >
           <div className="modal-box bg-base-100 border border-base-300 max-w-md p-6 relative rounded-2xl shadow-2xl">
             <button
               onClick={() => setActiveEditingBooking(null)}
@@ -271,7 +318,9 @@ const MyBookings = () => {
                   disabled={isSubmittingUpdate}
                   className="btn btn-neutral w-full normal-case font-bold shadow-md disabled:bg-base-300"
                 >
-                  {isSubmittingUpdate ? "Saving Allocation..." : "Confirm Schedule Adjustments"}
+                  {isSubmittingUpdate
+                    ? "Saving Allocation..."
+                    : "Confirm Schedule Adjustments"}
                 </button>
               </div>
             </form>
