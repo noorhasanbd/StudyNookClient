@@ -41,6 +41,7 @@ const AdminLayout = ({ children }) => {
 
   const navigationLinks = [
     { name: "My Listings", href: "/my-listings", icon: FiGrid },
+    { name: "All Rooms", href: "/rooms", icon: FiGrid },
     { name: "Add Room", href: "/add-room", icon: FiPlusCircle },
     { name: "My Bookings", href: "/my-bookings", icon: FiCalendar },
     { name: "My Profile", href: "/my-profile", icon: FiUser },
